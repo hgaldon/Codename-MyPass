@@ -1,0 +1,19 @@
+{
+  "name": "codename-mypass",
+  "version": "1.0.0",
+  "description": "cross-platform password manager",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hgaldon/codename-mypass.git"
+  },
+  "author": "Harry Galdon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hgaldon/codename-mypass/issues"
+  },
+  "homepage": "https://github.com/hgaldon/codename-mypass#readme"
+}

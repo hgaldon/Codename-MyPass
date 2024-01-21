@@ -1,0 +1,49 @@
+body, html {
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    -webkit-app-region: no-drag;
+    background-color: black;
+    color: white;
+  }
+  
+  .top-bar {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    position: relative;
+    -webkit-app-region: drag;
+  }
+  
+  .window-title {
+    margin: 0;
+    padding: 0;
+    line-height: 20px;
+    -webkit-app-region: drag;
+  }
+  
+  .window-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    -webkit-app-region: no-drag;
+  }
+  
+  .window-controls button {
+    background-color: #555;
+    border: none;
+    border-radius: 2px;
+    color: white;
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+  }
+  
+  .window-controls button:hover {
+    background-color: #777;
+  }
+  

@@ -4,6 +4,7 @@
   "description": "cross-platform password manager",
   "main": "main.js",
   "scripts": {
+    "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/hgaldon/codename-mypass/issues"
   },
-  "homepage": "https://github.com/hgaldon/codename-mypass#readme"
+  "homepage": "https://github.com/hgaldon/codename-mypass#readme",
+  "devDependencies": {
+    "electron": "^28.1.4"
+  }
 }

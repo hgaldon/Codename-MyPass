@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+    <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>MyPass Login</title>
+                <link rel="stylesheet" href="styles/style.css">
+            </head>
+            <body>
+                <div class="top-bar">
+                    <h1 class="window-title">MyPass: Password Manager</h1>
+                </div>
+                <div class="login">
+                    <h1>Welcome to MyPass!</h1>
+                    <form id=loginForm>
+                        Username: <input type="text" name="user"><br>
+                        Password: <input type="password" name="password"><br>
+                        <button id="login-btn">Login</button>
+                    </form>
+                    <button id="reg-btn" onclick="location.href='register.html'">Register</button>
+                </div>
+                <script src="js/login.js"></script>
+            </body>
+    </html>

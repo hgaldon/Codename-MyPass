@@ -1,23 +1,7 @@
 {
-  "name": "codename-mypass",
-  "version": "1.0.0",
-  "description": "cross-platform password manager",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hgaldon/codename-mypass.git"
-  },
-  "author": "Harry Galdon",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/hgaldon/codename-mypass/issues"
-  },
-  "homepage": "https://github.com/hgaldon/codename-mypass#readme",
-  "devDependencies": {
-    "electron": "^28.1.4"
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.2",
+    "mongoose": "^8.1.1"
   }
 }

@@ -46,4 +46,39 @@ body, html {
   .window-controls button:hover {
     background-color: #777;
   }
+
+   .login {
+    -webkit-app-region: no-drag;
+    text-align: center;
+    padding: 25px;
+   }
+
+   .register {
+    -webkit-app-region: no-drag;
+    text-align: center;
+    padding: 25px;
+   }
+
+   input,
+   select,
+   textarea {
+    margin-bottom: 20px; /* Adds space below each form element */
+  }
   
+   .login form > div {
+    margin-bottom: 15px; /* Spacing between form elements */
+}
+
+.login input[type="text"],
+.login input[type="password"] {
+    width: 25%;
+    padding: 5px;
+    margin-top: 5px; /* Spacing between label and input */
+}
+
+#login-btn,
+#reg-btn {
+    width: 10%;
+    padding: 10px;
+    margin-top: 10px; /* Spacing above the button */
+}

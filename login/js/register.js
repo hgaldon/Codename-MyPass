@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        fetch('http://localhost:3000/register', {
+        fetch('https://www.ramenstand.net/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

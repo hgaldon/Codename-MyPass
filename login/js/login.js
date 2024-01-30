@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
             pass: formData.get('password')
         };
 
-        fetch('http://localhost:3000/login', {
+        fetch('https://www.ramenstand.net/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

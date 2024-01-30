@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const app = express();
@@ -6,6 +7,22 @@ const app = express();
 app.use(express.json()); // for parsing application/json
 
 const mongoURI = 'mongodb://localhost:27017/myPass';
+
+const corsOptionsDelegate = (req, callback) => {
+  let corsOptions;
+  const origin = req.header(`Origin`);
+  console.log(`origin`, origin);
+
+  if (origin === `https://www.ramenstand.net`) {
+    corsOptions = { origin: true };
+    console.log(`cors accepted`);
+  } else {
+    corsOptions = { origin: false };
+    console.log(`cors rejected`);
+  }
+
+  callback(null, corsOptions);
+};
 
 app.use(express.static('login'));
 
@@ -24,7 +41,8 @@ const UserSchema = new mongoose.Schema({
 // User model
 const User = mongoose.model('User', UserSchema);
 
-app.post('/register', async (req, res) => {
+app.options(`/register`, cors(corsOptionsDelegate));
+app.post('/register', cors(corsOptionsDelegate), async (req, res) => {
     try {
         // Check if the user already exists
         const existingUser = await User.findOne({ username: req.body.username });
@@ -63,7 +81,8 @@ app.post('/register', async (req, res) => {
 });
 
 // Login endpoint
-app.post('/login', async (req, res) => {
+app.options(`/login`, cors(corsOptionsDelegate));
+app.post('/login', cors(corsOptionsDelegate), async (req, res) => {
     try {
         // Find the user by username
         const user = await User.findOne({ username: req.body.username });

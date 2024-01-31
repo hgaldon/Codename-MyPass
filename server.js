@@ -84,7 +84,6 @@ app.post('/app/register', async (req, res) => {
 // Login endpoint
 app.post('/app/login', async (req, res) => {
     try {
-        console.log(req.body);
         // Find the user by username
         const user = await User.findOne({ username: req.body.username });
         if (!user) {
@@ -99,7 +98,7 @@ app.post('/app/login', async (req, res) => {
                 return res.status(400).send({ message: 'Incorrect password.' });
             } else {
                 // Passwords match
-                res.send({ message: 'Login successful.' });
+                res.status(201).send({ message: 'Logged in successfully.' });
                 // You might want to create a session or generate a token here
             }
         });

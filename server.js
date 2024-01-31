@@ -8,20 +8,20 @@ app.use(express.json()); // for parsing application/json
 
 const mongoURI = 'mongodb://localhost:27017/myPass';
 
-const corsOptionsDelegate = (req: any, callback: any) => {
-    let corsOptions;
-    const origin = req.header(`Origin`);
-    console.log(`origin`, origin);
+const corsOptionsDelegate = (req, callback) => {
+  let corsOptions;
+  const origin = req.header(`Origin`);
+  console.log(`origin`, origin);
 
-    if (origin === `https://www.ramenstand.net/`) {
-        corsOptions = { origin: true };
-        console.log(`cors accepted`);
-    } else {
-        corsOptions = { origin: false };
-        console.log(`cors rejected`);
-    }
+  if (origin === `https://www.ramenstand.net`) {
+    corsOptions = { origin: true };
+    console.log(`cors accepted`);
+  } else {
+    corsOptions = { origin: false };
+    console.log(`cors rejected`);
+  }
 
-    callback(null, corsOptions);
+  callback(null, corsOptions);
 };
 
 // Apply CORS middleware

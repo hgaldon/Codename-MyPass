@@ -8,20 +8,16 @@ app.use(express.json()); // for parsing application/json
 
 const mongoURI = 'mongodb://localhost:27017/myPass';
 
-const corsOptionsDelegate = (req, callback) => {
-  let corsOptions;
-  const origin = req.header(`Origin`);
-  console.log(`origin`, origin);
-  if (origin === `https://www.ramenstand.net`) {
-    corsOptions = { origin: true };
-    console.log(`cors accepted`);
-  } else {
-    corsOptions = { origin: false };
-    console.log(`cors rejected`);
-    }
-
-    callback(null, corsOptions);
+const corsOptions = {
+    origin: ['https://ramenstand.net', 'https://www.ramenstand.net'], // Allowed origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed methods
+    credentials: true, // This allows session cookies to be sent back and forth
+    optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on status 204
 };
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).then(() => console.log('Successfully connected to local MongoDB.'))
@@ -38,8 +34,7 @@ const UserSchema = new mongoose.Schema({
 // User model
 const User = mongoose.model('User', UserSchema);
 
-app.options(`/register`, cors(corsOptionsDelegate));
-app.post('/register', cors(corsOptionsDelegate), async (req, res) => {
+app.post('/register', async (req, res) => {
     try {
         // Check if the user already exists
         const existingUser = await User.findOne({ username: req.body.username });
@@ -78,8 +73,7 @@ app.post('/register', cors(corsOptionsDelegate), async (req, res) => {
 });
 
 // Login endpoint
-app.options(`/login`, cors(corsOptionsDelegate));
-app.post('/login', cors(corsOptionsDelegate), async (req, res) => {
+app.post('/login', async (req, res) => {
     try {
         // Find the user by username
         const user = await User.findOne({ username: req.body.username });

@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData(userForm);
         const data = {
-            user: formData.get('user'),
-            pass: formData.get('password')
+            username: formData.get('user'),
+            password: formData.get('password')
         };
 
         fetch('https://ramenstand.net/app/login', {

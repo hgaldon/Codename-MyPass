@@ -3,12 +3,13 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET
 const app = express();
 
 app.use(express.json()); // for parsing application/json
 
 const mongoURI = 'mongodb://localhost:27017/myPass';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_development_secret'; // Only use a default in development
 
 const corsOptionsDelegate = (req, callback) => {
   let corsOptions;
@@ -69,28 +70,15 @@ app.post('/app/register', async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(req.body.password, 10); // 10 is the salt rounds
 
-        const userInfo = {
+        const user = new User({
             email: req.body.email,
             username: req.body.username,
             password: hashedPassword,
-        };
+        });
 
-        // Create a new user in the 'users' collection
-        const user = new User(userInfo);
-
-        try {
-            // Save the user in the 'users' collection
-            await user.save();
-
-            // Dynamically create a collection named after the user's full name and insert their info
-            // Note: Ensure the fullName field is sanitized and validated to prevent injection attacks.            
-            const fullNameCollection = mongoose.connection.collection(req.body.fullName.replace(/\s/g, '_'));
-            await fullNameCollection.insertOne(userInfo);
-
-            res.status(201).send({ message: 'User registered successfully.' });
-        } catch (error) {
-            res.status(500).send({ message: error.message });
-        }
+        // Save the user in the 'users' collection
+        await user.save();
+        res.status(201).send({ message: 'User registered successfully.' });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
@@ -113,16 +101,20 @@ app.post('/app/login', async (req, res) => {
                 return res.status(400).send({ message: 'Incorrect password.' });
             } else {
                 // Passwords match, generate token
-                const token = jwt.sign(
-                    { userId: user._id }, // Payload could include user ID or other identifying info
-                    JWT_SECRET,
-                    { expiresIn: '1h' } // Token expires in 1 hour
-                );
-                
-                res.status(201).send({ 
-                    message: 'Logged in successfully.',
-                    token // Send the token to the client
-                });
+                try {
+                    const token = jwt.sign(
+                        { userId: user._id }, // Payload could include user ID or other identifying info
+                        JWT_SECRET,
+                        { expiresIn: '1h' } // Token expires in 1 hour
+                    );
+                    
+                    res.status(201).send({ 
+                        message: 'Logged in successfully.',
+                        token // Send the token to the client
+                    });
+                } catch (error) {
+                    res.status(500).send({ message: 'Error generating token.' });
+                }
             }
         });
     } catch (error) {

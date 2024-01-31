@@ -84,6 +84,7 @@ app.post('/app/register', async (req, res) => {
 // Login endpoint
 app.post('/app/login', async (req, res) => {
     try {
+        console.log(req.body);
         // Find the user by username
         const user = await User.findOne({ username: req.body.username });
         if (!user) {

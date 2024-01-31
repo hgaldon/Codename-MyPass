@@ -12,19 +12,16 @@ const corsOptionsDelegate = (req, callback) => {
   let corsOptions;
   const origin = req.header(`Origin`);
   console.log(`origin`, origin);
-
   if (origin === `https://www.ramenstand.net`) {
     corsOptions = { origin: true };
     console.log(`cors accepted`);
   } else {
     corsOptions = { origin: false };
     console.log(`cors rejected`);
-  }
+    }
 
-  callback(null, corsOptions);
+    callback(null, corsOptions);
 };
-
-app.use(express.static('login'));
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).then(() => console.log('Successfully connected to local MongoDB.'))

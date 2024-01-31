@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema({
 // User model
 const User = mongoose.model('User', UserSchema);
 
-app.post('/register', async (req, res) => {
+app.post('/app/register', async (req, res) => {
     try {
         // Check if the user already exists
         const existingUser = await User.findOne({ username: req.body.username });
@@ -82,7 +82,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Login endpoint
-app.post('/login', async (req, res) => {
+app.post('/app/login', async (req, res) => {
     try {
         // Find the user by username
         const user = await User.findOne({ username: req.body.username });

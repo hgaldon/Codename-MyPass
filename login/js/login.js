@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             localStorage.setItem('token', data.token); // Store the token
-            window.location.href = '../../profile/home.html'; // Redirect to the profile page or other page
+            window.location.href = '../profile/home.html'; // Redirect to the profile page or other page
         })
         .catch(error => {
             messageDiv.textContent = error.message;

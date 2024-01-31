@@ -8,16 +8,25 @@ app.use(express.json()); // for parsing application/json
 
 const mongoURI = 'mongodb://localhost:27017/myPass';
 
-const corsOptions = {
-    origin: ['https://ramenstand.net', 'https://www.ramenstand.net'], // Allowed origins
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed methods
-    credentials: true, // This allows session cookies to be sent back and forth
-    optionsSuccessStatus: 204 // Some legacy browsers (IE11, various SmartTVs) choke on status 204
+const corsOptionsDelegate = (req: any, callback: any) => {
+    let corsOptions;
+    const origin = req.header(`Origin`);
+    console.log(`origin`, origin);
+
+    if (origin === `https://www.ramenstand.net/`) {
+        corsOptions = { origin: true };
+        console.log(`cors accepted`);
+    } else {
+        corsOptions = { origin: false };
+        console.log(`cors rejected`);
+    }
+
+    callback(null, corsOptions);
 };
 
 // Apply CORS middleware
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.use(cors(corsOptionsDelegate));
+app.options('*', cors(corsOptionsDelegate));
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).then(() => console.log('Successfully connected to local MongoDB.'))

@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET
 const app = express();
 
 app.use(express.json()); // for parsing application/json
@@ -27,6 +29,19 @@ const corsOptionsDelegate = (req, callback) => {
 // Apply CORS middleware
 app.use(cors(corsOptionsDelegate));
 app.options('*', cors(corsOptionsDelegate));
+
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.sendStatus(401); // if there isn't any token
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next(); // pass the execution off to whatever request the client intended
+    });
+};
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).then(() => console.log('Successfully connected to local MongoDB.'))
@@ -97,14 +112,27 @@ app.post('/app/login', async (req, res) => {
             } else if (!isMatch) {
                 return res.status(400).send({ message: 'Incorrect password.' });
             } else {
-                // Passwords match
-                res.status(201).send({ message: 'Logged in successfully.' });
-                // You might want to create a session or generate a token here
+                // Passwords match, generate token
+                const token = jwt.sign(
+                    { userId: user._id }, // Payload could include user ID or other identifying info
+                    JWT_SECRET,
+                    { expiresIn: '1h' } // Token expires in 1 hour
+                );
+                
+                res.status(201).send({ 
+                    message: 'Logged in successfully.',
+                    token // Send the token to the client
+                });
             }
         });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
+});
+
+app.get('/app/logon', authenticateToken, (req, res) => {
+    // Only requests with a valid token will reach this point
+    res.json({ message: 'You have accessed a protected route'/*, user: req.user */});
 });
 
 const PORT = process.env.PORT || 3000;

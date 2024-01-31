@@ -20,9 +20,15 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(data),
         })
-        .then(result => {
-            messageDiv.textContent = result.message;
-            messageDiv.style.color = 'green';
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Login failed'); // Throw an error if the login was not successful
+            }
+            return response.json();
+        })
+        .then(data => {
+            localStorage.setItem('token', data.token); // Store the token
+            window.location.href = '../../profile/home.html'; // Redirect to the profile page or other page
         })
         .catch(error => {
             messageDiv.textContent = error.message;

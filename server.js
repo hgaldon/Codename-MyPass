@@ -2,9 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const speakeasy = require('speakeasy');
+const crypto = require('crypto');
 const app = express();
+
 
 app.use(express.json()); // for parsing application/json
 

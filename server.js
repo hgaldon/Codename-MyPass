@@ -137,10 +137,32 @@ app.post('/app/login', async (req, res) => {
     }
 });
 
-app.get('/app/logon', authenticateToken, (req, res) => {
-    // Only requests with a valid token will reach this point
-    res.json({ message: 'You have accessed a protected route'/*, user: req.user */});
+app.get('/app/passwords', authenticateToken, async (req, res) => {
+    try {
+        // Retrieve only the passwords associated with the user
+        const passwords = await Password.find({ userId: req.user.userId });
+        res.json(passwords);
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
 });
+
+app.post('/app/passwords', authenticateToken, async (req, res) => {
+    const password = new Password({
+        userId: req.user.userId, // Link password to the user
+        website: req.body.website,
+        username: req.body.username,
+        password: req.body.password, // In a real-world app, consider encrypting this
+    });
+
+    try {
+        const newPassword = await password.save();
+        res.status(201).json(newPassword);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

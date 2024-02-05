@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
+            console.log(data);
             if (data.qrCode) {
                 const qrModal = document.getElementById('qrModal');
                 const qrImage = document.getElementById('qrImage');

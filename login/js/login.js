@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(userForm);
         const data = {
             username: formData.get('user'),
-            password: formData.get('password')
+            password: formData.get('password'),
+            totpToken: formData.get('totpToken') // Include the TOTP token in the data sent to the server
         };
 
         fetch('https://www.ramenstand.net/app/login', {
@@ -22,7 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Login failed'); // Throw an error if the login was not successful
+                // Parse the error message from the response if possible
+                return response.json().then(errData => {
+                    throw new Error(errData.message || 'Login failed');
+                });
             }
             return response.json();
         })

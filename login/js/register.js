@@ -29,26 +29,27 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(data),
         })
-        .then(response => {
-            if (!response.ok) {
-                throw response;
+        .then(response => response.json())
+        .then(data => {
+            if (data.qrCode) {
+                const qrModal = document.getElementById('qrModal');
+                const qrImage = document.getElementById('qrImage');
+                qrImage.src = data.qrCode;
+                qrModal.style.display = "block";
+        
+                const span = document.getElementsByClassName("close")[0];
+                span.onclick = function() {
+                    qrModal.style.display = "none";
+                }
+                window.onclick = function(event) {
+                    if (event.target === qrModal) {
+                        qrModal.style.display = "none";
+                    }
+                }
             }
-            // Check if the response has a content type of JSON
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                return response.json();
-            } else {
-                // Handle non-JSON response here
-                throw new Error('Response is not in JSON format');
-            }
-        })
-        .then(result => {
-            messageDiv.textContent = result.message;
-            messageDiv.style.color = 'green';
         })
         .catch(error => {
-            messageDiv.textContent = error.message;
-            messageDiv.style.color = 'red';
+            console.error('Error:', error);
         });
     });
 });

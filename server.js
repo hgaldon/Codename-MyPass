@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 const crypto = require('crypto');
 const app = express();
 

@@ -1,0 +1,93 @@
+const token = localStorage.getItem('token'); // Retrieve the token
+
+fetchPasswords(); // Fetch passwords after successful logon
+
+function fetchPasswords() {
+    fetch('/app/passwords', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Passwords fetch response was not ok.');
+    })
+    .then(data => insertPasswordsIntoTable(data)) // Insert passwords into the table
+    .catch(error => console.error('Error fetching passwords:', error));
+}
+
+function insertPasswordsIntoTable(passwords) {
+    const table = document.getElementById('passwordsTable').getElementsByTagName('tbody')[0];
+    // Clear existing table data
+    table.innerHTML = '';
+
+    passwords.forEach(password => {
+        let row = table.insertRow();
+        let websiteCell = row.insertCell(0);
+        let usernameCell = row.insertCell(1);
+        let passwordCell = row.insertCell(2);
+
+        websiteCell.textContent = password.website;
+        usernameCell.textContent = password.username;
+        // Update this part to include the masked password and toggle button
+        passwordCell.innerHTML = `
+            <span class="password-masked" id="password-${password._id}">••••••••</span>
+            <button onclick="togglePasswordVisibility('password-${password._id}', '${password.password}')" class="toggle-password">Show</button>
+        `;
+    });
+}
+
+
+function addPassword(event) {
+    event.preventDefault(); // Prevent the form from submitting the traditional way
+    const website = document.getElementById('websiteInput').value;
+    const username = document.getElementById('usernameInput').value;
+    const password = document.getElementById('passwordInput').value;
+
+    fetch('/app/passwords', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+        },
+        body: JSON.stringify({
+            website,
+            username,
+            password
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Response from server was not ok when adding password.');
+    })
+    .then(data => {
+        console.log('Password added:', data);
+        fetchPasswords(); // Refresh the list of passwords
+    })
+    .catch(error => console.error('Error adding password:', error));
+}
+
+document.getElementById('addPasswordForm').addEventListener('submit', addPassword);
+
+function togglePasswordVisibility(spanId, actualPassword) {
+    const passwordSpan = document.getElementById(spanId);
+    const isMasked = passwordSpan.classList.contains('password-masked');
+    
+    if (isMasked) {
+        // If it's masked, show the actual password
+        passwordSpan.textContent = actualPassword;
+        passwordSpan.nextSibling.textContent = 'Hide'; // Change the button text to 'Hide'
+    } else {
+        // If it's showing the password, mask it again
+        passwordSpan.textContent = '••••••••';
+        passwordSpan.nextSibling.textContent = 'Show'; // Change the button text to 'Show'
+    }
+    
+    // Toggle the 'password-masked' class
+    passwordSpan.classList.toggle('password-masked');
+}

@@ -59,6 +59,20 @@ const UserSchema = new mongoose.Schema({
 // User model
 const User = mongoose.model('User', UserSchema);
 
+const PasswordSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    },
+    website: String,
+    username: String,
+    password: String,
+});
+
+// Password model
+const Password = mongoose.model('Password', PasswordSchema);
+
 app.post('/app/register', async (req, res) => {
     try {
         // Check if the user already exists
@@ -71,6 +85,7 @@ app.post('/app/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, 10); // 10 is the salt rounds
 
         const user = new User({
+            fullName: req.body.fullName,
             email: req.body.email,
             username: req.body.username,
             password: hashedPassword,
@@ -78,7 +93,7 @@ app.post('/app/register', async (req, res) => {
 
         // Save the user in the 'users' collection
         await user.save();
-        res.status(201).send({ message: 'User registered successfully.' });
+        res.status(201).send({ message: 'User registered successfully, you will receive an email when you are processed' });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }

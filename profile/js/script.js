@@ -54,12 +54,13 @@ function insertPasswordsIntoTable(passwords) {
 
         websiteCell.textContent = password.website;
         usernameCell.textContent = password.username;
+        passwordCell.textContent = password.password;
 
         // Use a data attribute to store the actual password
-        passwordCell.innerHTML = `
+        /*passwordCell.innerHTML = `
             <span class="password-masked" id="password-${password._id}" data-actual-password="${password.password}">••••••••</span>
             <button onclick="togglePasswordVisibility('password-${password._id}')" class="toggle-password">Show</button>
-        `;
+        `;*/
     });
 }
 

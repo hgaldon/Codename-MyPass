@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const crypto = require('crypto');
+require('dotenv').config();
 const app = express();
 
 
@@ -13,7 +14,7 @@ app.use(express.json()); // for parsing application/json
 
 const mongoURI = 'mongodb://localhost:27017/myPass';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_development_secret'; // Only use a default in development
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const corsOptionsDelegate = (req, callback) => {
   let corsOptions;

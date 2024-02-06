@@ -73,6 +73,7 @@ const PasswordSchema = new mongoose.Schema({
     website: String,
     username: String,
     password: String,
+    salt: String
 });
 
 // Password model
@@ -169,7 +170,7 @@ app.post('/app/login', async (req, res) => {
                         return res.status(400).send({ message: 'Invalid 2FA token.' });
                     }
                 }
-                const key = crypto.pbkdf2Sync(req.body.password, user.salt, 10000, 32, 'sha256');
+                const key = crypto.pbkdf2Sync(req.body.password, Buffer.from(user.salt, 'hex'), 10000, 32, 'sha256');
                 const aesKey = key.toString('hex');
                 try {
                     const token = jwt.sign(
@@ -201,7 +202,8 @@ app.post('/app/passwords', authenticateToken, async (req, res) => {
         }
 
         const aesKey = req.user.aesKey;
-        const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), crypto.randomBytes(16));
+        const saltP = crypto.randomBytes(16).toString('hex');
+        const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), Buffer.from(saltP, 'hex'));
         let encryptedPassword = cipher.update(req.body.password, 'utf8', 'hex');
         encryptedPassword += cipher.final('hex');
 
@@ -212,6 +214,7 @@ app.post('/app/passwords', authenticateToken, async (req, res) => {
             website: req.body.website,
             username: req.body.username,
             password: encryptedPassword,
+            salt: saltP
         });
 
         const newPassword = await password.save();
@@ -237,14 +240,13 @@ app.get('/app/passwords', authenticateToken, async (req, res) => {
         const passwords = await UserPassword.find({});
 
         const decryptedPasswords = passwords.map(passwordEntry => {
-            const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), crypto.randomBytes(16));
+            const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), Buffer.from(passwordEntry.salt, 'hex'));
             let decryptedPassword = decipher.update(passwordEntry.password, 'hex', 'utf8');
             decryptedPassword += decipher.final('utf8');
 
             console.log(decryptedPassword)
 
             return {
-                _id: passwordEntry._id,
                 website: passwordEntry.website,
                 username: passwordEntry.username,
                 password: decryptedPassword

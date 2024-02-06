@@ -130,6 +130,7 @@ body, html {
 .qr-container p {
   margin-top: 20px; /* Space between the text and the QR code */
   font-size: 18px; /* Optional: Adjust the font size */
+  color: black;
 }
 
 .qr-container img {

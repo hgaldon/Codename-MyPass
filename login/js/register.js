@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Display a success message
-                messageDiv.textContent = "Registration successful! Please scan the QR code with your 2FA app.";
+                messageDiv.textContent = "Registration successful!";
                 messageDiv.style.color = 'green';
             } else {
                 // Handle cases where QR code is not received

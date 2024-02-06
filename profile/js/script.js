@@ -43,7 +43,6 @@ function fetchPasswords() {
 }
 
 function insertPasswordsIntoTable(passwords) {
-    console.log(passwords)
     const table = document.getElementById('passwordsTable').getElementsByTagName('tbody')[0];
     table.innerHTML = ''; // Clear existing table data
 
@@ -101,15 +100,17 @@ function togglePasswordVisibility(spanId) {
     const passwordSpan = document.getElementById(spanId);
     if (passwordSpan) {
         const isMasked = passwordSpan.classList.contains('password-masked');
+        const button = passwordSpan.nextElementSibling; // Use nextElementSibling instead of nextSibling
+
         if (isMasked) {
             // Retrieve the actual password from data-actual-password attribute
             const actualPassword = passwordSpan.getAttribute('data-actual-password');
             passwordSpan.textContent = actualPassword; // Show the actual password
-            passwordSpan.nextSibling.textContent = 'Hide'; // Change the button text to 'Hide'
+            button.textContent = 'Hide'; // Change the button text to 'Hide'
         } else {
             // If it's showing the password, mask it again
             passwordSpan.textContent = '••••••••';
-            passwordSpan.nextSibling.textContent = 'Show'; // Change the button text to 'Show'
+            button.textContent = 'Show'; // Change the button text to 'Show'
         }
         // Toggle the 'password-masked' class
         passwordSpan.classList.toggle('password-masked');

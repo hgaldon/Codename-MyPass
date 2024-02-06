@@ -241,6 +241,8 @@ app.get('/app/passwords', authenticateToken, async (req, res) => {
             let decryptedPassword = decipher.update(passwordEntry.password, 'hex', 'utf8');
             decryptedPassword += decipher.final('utf8');
 
+            console.log(decryptedPassword)
+
             return {
                 _id: passwordEntry._id,
                 website: passwordEntry.website,

@@ -2,6 +2,29 @@ const token = localStorage.getItem('token'); // Retrieve the token
 
 fetchPasswords(); // Fetch passwords after successful logon
 
+function searchPasswords() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById('passwordsTable');
+    const tr = table.getElementsByTagName('tr');
+
+    // Loop through all table rows, and hide those who don't match the search query
+    for (let i = 0; i < tr.length; i++) {
+        let tdWebsite = tr[i].getElementsByTagName('td')[0];
+        let tdUsername = tr[i].getElementsByTagName('td')[1];
+        if (tdWebsite || tdUsername) {
+            const textValueWebsite = tdWebsite.textContent || tdWebsite.innerText;
+            const textValueUsername = tdUsername.textContent || tdUsername.innerText;
+            if (textValueWebsite.toLowerCase().indexOf(filter) > -1 || textValueUsername.toLowerCase().indexOf(filter) > -1) {
+                tr[i].style.display = '';
+            } else {
+                tr[i].style.display = 'none';
+            }
+        }      
+    }
+}
+
+
 function fetchPasswords() {
     fetch('/app/passwords', {
         method: 'GET',

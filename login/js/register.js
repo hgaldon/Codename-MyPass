@@ -29,9 +29,16 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(data),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                // Parse the error message from the response if possible
+                return response.json().then(errData => {
+                    throw new Error(errData.message || 'Registration failed');
+                });
+            }
+            return response.json();
+        })
         .then(data => {
-            console.log(data);
             if (data.qrCode) {
                 const qrModal = document.getElementById('qrModal');
                 const qrImage = document.getElementById('qrImage');
@@ -47,9 +54,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         qrModal.style.display = "none";
                     }
                 }
+                
+                // Display a success message
+                messageDiv.textContent = "Registration successful! Please scan the QR code with your 2FA app.";
+                messageDiv.style.color = 'green';
+            } else {
+                // Handle cases where QR code is not received
+                messageDiv.textContent = "Registration successful but failed to generate QR code. Please contact support.";
+                messageDiv.style.color = 'orange';
             }
         })
         .catch(error => {
+            messageDiv.textContent = error.message;
+            messageDiv.style.color = 'red';
             console.error('Error:', error);
         });
     });

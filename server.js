@@ -70,18 +70,31 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 
 const PasswordSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'User'
-    },
     website: String,
     username: String,
     password: String,
 });
 
 // Password model
-const Password = mongoose.model('Password', PasswordSchema);
+
+const checkUserCollection = async (fullName) => {
+    try {
+        // Replace spaces with underscores
+        const collectionName = fullName.replace(/\s+/g, '_');
+
+        // List all collections
+        const collections = await mongoose.connection.db.listCollections().toArray();
+        
+        // Check if a collection with the name exists
+        const collectionNames = collections.map(col => col.name);
+        return collectionNames.includes(collectionName); // Returns true if the collection exists
+    } catch (error) {
+        console.error('Error checking user collection:', error);
+        return false; // If there's an error, assume the collection doesn't exist
+    }
+};
+
+
 
 app.post('/app/register', async (req, res) => {
     try {
@@ -93,7 +106,11 @@ app.post('/app/register', async (req, res) => {
 
         const salt = crypto.randomBytes(16).toString('hex');
         const hashedPassword = await bcrypt.hash(req.body.password, 10); // 10 is the salt rounds
-        const secret = speakeasy.generateSecret({ length: 20 });
+        const secret = speakeasy.generateSecret({
+            length: 20,
+            issuer: 'MyPass', // Your service's name
+            name: `MyPass (${req.body.username})` // A label, typically including the user's email or username
+        });
 
         const user = new User({
             fullName: req.body.fullName,
@@ -132,7 +149,8 @@ app.post('/app/login', async (req, res) => {
             return res.status(400).send({ message: 'User not found.' });
         }
 
-        // Compare the hashed password
+        const collectionExists = await checkUserCollection(user.fullName);
+
         bcrypt.compare(req.body.password, user.password, (err, isMatch) => {
             if (err) {
                 return res.status(500).send({ message: 'Error checking password.' });
@@ -160,9 +178,10 @@ app.post('/app/login', async (req, res) => {
                         { expiresIn: '1h' }
                     );
                     
-                    res.status(201).send({ 
+                     res.status(201).send({ 
                         message: 'Logged in successfully.',
-                        token // Send the token to the client
+                        token, // Send the token to the client
+                        collectionExists // Send the collection status
                     });
                 } catch (error) {
                     res.status(500).send({ message: 'Error generating token.' });
@@ -174,13 +193,51 @@ app.post('/app/login', async (req, res) => {
     }
 });
 
+app.post('/app/passwords', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).send({ message: 'User not found.' });
+        }
+
+        const aesKey = req.user.aesKey;
+        const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), crypto.randomBytes(16));
+        let encryptedPassword = cipher.update(req.body.password, 'utf8', 'hex');
+        encryptedPassword += cipher.final('hex');
+
+        const collectionName = user.fullName.replace(/\s+/g, '_');
+        const UserPassword = mongoose.model(collectionName, PasswordSchema, collectionName);
+        
+        const password = new UserPassword({
+            website: req.body.website,
+            username: req.body.username,
+            password: encryptedPassword,
+        });
+
+        const newPassword = await password.save();
+        res.status(201).json(newPassword);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+
+
 app.get('/app/passwords', authenticateToken, async (req, res) => {
     try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).send({ message: 'User not found.' });
+        }
+
         const aesKey = req.user.aesKey;
-        const passwords = await Password.find({ userId: req.user.userId });
+        const collectionName = user.fullName.replace(/\s+/g, '_');
+        const UserPassword = mongoose.model(collectionName, PasswordSchema, collectionName);
+
+        const passwords = await UserPassword.find({});
 
         const decryptedPasswords = passwords.map(passwordEntry => {
-            const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), Buffer.alloc(16, 0));
+            const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), crypto.randomBytes(16));
             let decryptedPassword = decipher.update(passwordEntry.password, 'hex', 'utf8');
             decryptedPassword += decipher.final('utf8');
 
@@ -195,28 +252,6 @@ app.get('/app/passwords', authenticateToken, async (req, res) => {
         res.json(decryptedPasswords);
     } catch (err) {
         res.status(500).send({ message: err.message });
-    }
-});
-
-
-app.post('/app/passwords', authenticateToken, async (req, res) => {
-    try {
-        const aesKey = req.user.aesKey;
-        const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(aesKey, 'hex'), crypto.randomBytes(16));
-        let encryptedPassword = cipher.update(req.body.password, 'utf8', 'hex');
-        encryptedPassword += cipher.final('hex');
-
-        const password = new Password({
-            userId: req.user.userId,
-            website: req.body.website,
-            username: req.body.username,
-            password: encryptedPassword,
-        });
-
-        const newPassword = await password.save();
-        res.status(201).json(newPassword);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
     }
 });
 

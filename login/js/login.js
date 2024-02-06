@@ -32,7 +32,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             localStorage.setItem('token', data.token); // Store the token
-            window.location.href = '../profile/home.html'; // Redirect to the profile page or other page
+
+            if (data.collectionExists) {
+                window.location.href = '../profile/home.html'; // Redirect to the profile page
+            } else {
+                window.location.href = '../profile/processing.html'; // Redirect to the "account is being processed" page
+            }
         })
         .catch(error => {
             messageDiv.textContent = error.message;

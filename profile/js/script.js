@@ -44,8 +44,7 @@ function fetchPasswords() {
 
 function insertPasswordsIntoTable(passwords) {
     const table = document.getElementById('passwordsTable').getElementsByTagName('tbody')[0];
-    // Clear existing table data
-    table.innerHTML = '';
+    table.innerHTML = ''; // Clear existing table data
 
     passwords.forEach(password => {
         let row = table.insertRow();
@@ -55,14 +54,14 @@ function insertPasswordsIntoTable(passwords) {
 
         websiteCell.textContent = password.website;
         usernameCell.textContent = password.username;
-        // Update this part to include the masked password and toggle button
+
+        // Use a data attribute to store the actual password
         passwordCell.innerHTML = `
-            <span class="password-masked" id="password-${password._id}">••••••••</span>
-            <button onclick="togglePasswordVisibility('password-${password._id}', '${password.password}')" class="toggle-password">Show</button>
+            <span class="password-masked" id="password-${password._id}" data-actual-password="${password.password}">••••••••</span>
+            <button onclick="togglePasswordVisibility('password-${password._id}')" class="toggle-password">Show</button>
         `;
     });
 }
-
 
 function addPassword(event) {
     event.preventDefault(); // Prevent the form from submitting the traditional way
@@ -97,20 +96,23 @@ function addPassword(event) {
 
 document.getElementById('addPasswordForm').addEventListener('submit', addPassword);
 
-function togglePasswordVisibility(spanId, actualPassword) {
+function togglePasswordVisibility(spanId) {
     const passwordSpan = document.getElementById(spanId);
-    const isMasked = passwordSpan.classList.contains('password-masked');
-    
-    if (isMasked) {
-        // If it's masked, show the actual password
-        passwordSpan.textContent = actualPassword;
-        passwordSpan.nextSibling.textContent = 'Hide'; // Change the button text to 'Hide'
+    if (passwordSpan) {
+        const isMasked = passwordSpan.classList.contains('password-masked');
+        if (isMasked) {
+            // Retrieve the actual password from data-actual-password attribute
+            const actualPassword = passwordSpan.getAttribute('data-actual-password');
+            passwordSpan.textContent = actualPassword; // Show the actual password
+            passwordSpan.nextSibling.textContent = 'Hide'; // Change the button text to 'Hide'
+        } else {
+            // If it's showing the password, mask it again
+            passwordSpan.textContent = '••••••••';
+            passwordSpan.nextSibling.textContent = 'Show'; // Change the button text to 'Show'
+        }
+        // Toggle the 'password-masked' class
+        passwordSpan.classList.toggle('password-masked');
     } else {
-        // If it's showing the password, mask it again
-        passwordSpan.textContent = '••••••••';
-        passwordSpan.nextSibling.textContent = 'Show'; // Change the button text to 'Show'
+        console.error('Element not found:', spanId);
     }
-    
-    // Toggle the 'password-masked' class
-    passwordSpan.classList.toggle('password-masked');
 }
